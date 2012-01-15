@@ -1,5 +1,5 @@
-  int sendPin = 12;
-  int LEDPin = 8;
+  int sendPin = 11;
+  int LEDPin = 10;
 
   void setup()
   {
@@ -9,28 +9,59 @@
     pinMode(LEDPin, OUTPUT);
   }
 
-  void sendSingleSignal(int timeInMilliseconds) {
-    for(int i = 0; i < timeInMilliseconds / 25 * 1000; i++) {
+  // min 250us
+  // max 1750us
+  void sendSingleSignal(long timeInMicroseconds) {
+    for(long i = 0; i < timeInMicroseconds / 25; i++) {
       digitalWrite(sendPin, HIGH);
-      delayMicroseconds(13);
+      delayMicroseconds(10);
       digitalWrite(sendPin, LOW);
-      delayMicroseconds(12);
+      delayMicroseconds(10);
+    }
+  }
+
+  // min 250us
+  // max 1750us
+  long startBit     =  550;
+  long oneBit       =  425;
+  long zeroBit      =  300;
+
+  unsigned int gap  =  350; // min 250us
+
+  void sendData(byte player, byte weapon) {
+    sendByte(player + (weapon << 4));
+  }
+
+  void sendByte(byte data) {
+
+    sendSingleSignal(startBit);
+    delayMicroseconds(gap);
+    for(int i = 0; i < 8; i++) {
+      if ((data >> i) & B00000001) {
+        sendSingleSignal(oneBit);
+      } else {
+        sendSingleSignal(zeroBit);
+      }
+      delayMicroseconds(gap);
     }
   }
 
   void loop()
   {
-    Serial.println("Starting...");
-          
+    //Serial.println("Starting...");
+
+
+    // switch status LED on
     digitalWrite(LEDPin, HIGH);
-    sendSingleSignal(2000);
-    delay(1000);
-    sendSingleSignal(1500);
-    delay(1000);
-    sendSingleSignal(700);
-    delay(1000);
-    sendSingleSignal(1500);
+
+    sendData(5,2);
+    /*
+    sendData(1,8);
+    sendData(12,3);
+    */
+    // switch status LED off
     digitalWrite(LEDPin, LOW);
-    Serial.println("Finished, waiting 5 seconds...");
-    delay(5000);
+
+    //Serial.println("Finished, waiting 2 seconds...");
+    delay(2500);
   }
