@@ -7,6 +7,7 @@
     Serial.begin(9600);
     pinMode(sendPin, OUTPUT);
     pinMode(LEDPin, OUTPUT);
+    randomSeed(analogRead(0));
   }
 
   // min 250us
@@ -63,5 +64,6 @@
     digitalWrite(LEDPin, LOW);
 
     //Serial.println("Finished, waiting 2 seconds...");
-    delay(2500);
+    delay(random(1000L, 3000L));
+    //delayMicroseconds(1000);
   }
